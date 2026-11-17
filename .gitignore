@@ -1,0 +1,93 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing & Coverage
+/coverage
+*.lcov
+/scripts/
+
+# Next.js & Build Outputs
+/.next/
+/out/
+/build/
+/dist/
+.cache/
+
+# Misc & OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.pem
+*.key
+*.cert
+
+# IDE & Editor files (local development)
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# AI / IDE Agent Specs & Configs
+.kiro/
+.gemini/
+.claude/
+.cursor/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment & secret files
+# (everything except the committed template)
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Database: only the numbered migrations (db/migrations/0NN_*.sql) are tracked.
+# Everything below is kept locally for reference, not in the repo.
+db/legacy/
+db/migrations/archive/
+db/migrations/docs/
+db/migrations/BACKUP_*
+db/migrations/VERIFY_*
+db/migrations/*_verify_*
+db/migrations/SCHEMA_CANONICAL*
+db/supabase-sql-rules.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Markdown: only these four files are public. Everything else stays local.
+*.md
+!/README.md
+!/CONTRIBUTING.md
+!/LICENSE.md
+!/DATABASE.md
+# GitHub issue/PR templates are markdown too; uncomment if you add them:
+# !/.github/*.md
+# !/.github/**/*.md
+docs/
+specs/
+
+# Scratchpads, demos, and temporary files (root-level only, so a source file
+# like src/.../DemoBlock.tsx is never ignored by accident)
+/*DEMO*
+/*demo*
+*.scratch.*
+
+# GitHub workflows stay tracked (CI). Uncomment to keep them private:
+# .github/
