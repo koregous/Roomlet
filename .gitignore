@@ -6,7 +6,6 @@ node_modules/
 # Testing & Coverage
 /coverage
 *.lcov
-/scripts/
 
 # Next.js & Build Outputs
 /.next/

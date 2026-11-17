@@ -2,6 +2,7 @@ import { getSupabaseServerClient } from '@/shared/lib/supabase-server'
 import { NextResponse } from 'next/server'
 import { generatePresignedUploadUrl, R2_CONFIGURED } from '@/shared/lib/r2-storage'
 import { checkStorageQuota, formatBytes } from '@/shared/lib/storage-quota'
+import { canAddSlide, getProfileBackgroundSlides } from '@/shared/lib/background-slides'
 
 const MAX_BACKGROUND_SIZE = 10 * 1024 * 1024 // 10MB
 
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
   // ── 2. Get user profile and check premium status ─────────────────────────
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, user_id, is_premium, storage_used_bytes')
+    .select('id, user_id, is_premium, storage_used_bytes, profile_background_slides, profile_background_url, profile_background_type')
     .eq('user_id', user.id)
     .single()
 
@@ -122,6 +123,12 @@ export async function POST(request: Request) {
     backgroundType = 'gif'
   } else {
     backgroundType = 'image'
+  }
+
+  // ── 8b. Slideshow rules: max slides, and no mixing video with other slides ─
+  const slideCheck = canAddSlide(getProfileBackgroundSlides(profile), backgroundType)
+  if (!slideCheck.ok) {
+    return NextResponse.json({ error: slideCheck.reason }, { status: 409 })
   }
 
   // ── 9. Generate presigned URL ─────────────────────────────────────────────

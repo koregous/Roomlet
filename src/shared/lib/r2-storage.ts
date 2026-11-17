@@ -473,3 +473,42 @@ export async function existsInR2(keyOrUrl: string): Promise<boolean> {
     return false
   }
 }
+
+/**
+ * Reads an object's size and content type from R2 without downloading it.
+ * Use after a browser-direct (presigned) upload to verify what was ACTUALLY
+ * stored instead of trusting client-supplied metadata.
+ *
+ * @returns null if the object doesn't exist (or R2 isn't configured)
+ */
+export async function getR2ObjectInfo(
+  keyOrUrl: string
+): Promise<{ size: number; contentType: string } | null> {
+  if (!R2_CONFIGURED || !r2Client) {
+    return null
+  }
+
+  const key = keyOrUrl.startsWith('http')
+    ? extractKeyFromUrl(keyOrUrl)
+    : keyOrUrl
+
+  if (!key) {
+    return null
+  }
+
+  try {
+    const result = await r2Client.send(
+      new HeadObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+      })
+    )
+
+    return {
+      size: result.ContentLength ?? 0,
+      contentType: result.ContentType ?? '',
+    }
+  } catch {
+    return null
+  }
+}

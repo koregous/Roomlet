@@ -15,6 +15,10 @@ import SectionCard from '@/features/gallery/components/SectionCard'
 import PremiumBadge from '@/shared/components/PremiumBadge'
 import PremiumCrown from '@/shared/components/PremiumCrown'
 import ProfileBackgroundLayer from './ProfileBackgroundLayer'
+import {
+  getProfileBackgroundSlides,
+  normalizeBackgroundInterval,
+} from '@/shared/lib/background-slides'
 import ProfileMenu from './ProfileMenu'
 import { useIsProfileOwner } from '../hooks/useIsProfileOwner'
 
@@ -136,8 +140,9 @@ function ProfileCardInner({ profile, sections, initialSectionId, bookmarks = [] 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
-  // Check if profile has background
-  const hasBackground = !!profile.profile_background_url
+  // Check if profile has background (slideshow slides, or the legacy single background)
+  const backgroundSlides = getProfileBackgroundSlides(profile)
+  const hasBackground = backgroundSlides.length > 0
   
   // Glass effect only for premium users with custom backgrounds
   const useGlassEffect = hasBackground && profile.is_premium
@@ -150,10 +155,10 @@ function ProfileCardInner({ profile, sections, initialSectionId, bookmarks = [] 
   return (
     <div className={`min-h-screen text-white relative ${useGlassEffect ? '' : 'bg-black'}`}>
       {/* Profile Background Layer - Only for premium with background */}
-      {useGlassEffect && profile.profile_background_url && profile.profile_background_type && (
+      {useGlassEffect && hasBackground && (
         <ProfileBackgroundLayer
-          backgroundUrl={profile.profile_background_url}
-          type={profile.profile_background_type}
+          slides={backgroundSlides}
+          intervalSeconds={normalizeBackgroundInterval(profile.profile_background_interval_seconds)}
           posterUrl={profile.profile_background_poster_url}
           isNSFW={profile.background_is_nsfw || profile.is_nsfw || false}
           profileNSFW={profile.is_nsfw || false}

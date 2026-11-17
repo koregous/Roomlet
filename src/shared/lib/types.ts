@@ -1,4 +1,12 @@
 // Existing types
+export type BackgroundSlideType = 'video' | 'gif' | 'image'
+
+export interface BackgroundSlide {
+  url: string
+  type: BackgroundSlideType
+  size: number // bytes (0 = unknown, e.g. backfilled legacy backgrounds)
+}
+
 export interface Profile {
   id: string
   user_id: string // Auth user ID - different from profiles.id
@@ -22,6 +30,9 @@ export interface Profile {
   profile_background_type?: 'video' | 'gif' | 'image' | null
   background_is_nsfw?: boolean
   profile_background_poster_url?: string | null
+  // Slideshow: ordered list (max 5). Slide #1 is mirrored into profile_background_url/_type
+  profile_background_slides?: BackgroundSlide[]
+  profile_background_interval_seconds?: number
 }
 
 export interface Section {

@@ -1,19 +1,26 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Eye } from 'lucide-react'
+import type { BackgroundSlide } from '@/shared/lib/background-slides'
+
+/** Crossfade duration between slides */
+const FADE_MS = 1200
 
 interface Props {
-  backgroundUrl: string
-  type: 'video' | 'gif' | 'image'
+  /** One slide = static background (or a single video). Two or more = crossfading slideshow */
+  slides: BackgroundSlide[]
+  /** Seconds each slide is shown (slideshow only) */
+  intervalSeconds?: number
+  /** Poster frame for a single video background */
   posterUrl?: string | null
   isNSFW: boolean
   profileNSFW: boolean
 }
 
 export default function ProfileBackgroundLayer({
-  backgroundUrl,
-  type,
+  slides,
+  intervalSeconds = 8,
   posterUrl,
   isNSFW,
   profileNSFW
@@ -29,15 +36,47 @@ export default function ProfileBackgroundLayer({
   // Lazy loading with Intersection Observer
   const [isVisible, setIsVisible] = useState(false)
 
+  // Slideshow state
+  const count = slides.length
+  const [current, setCurrent] = useState(0)
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [tabVisible, setTabVisible] = useState(true)
+
+  // People who ask their OS for less motion get the first slide, static
+  const isSlideshow = count > 1 && !reducedMotion
+  const firstSlide = slides[0]
+
+  // Start from the first slide again whenever the set of slides changes
+  useEffect(() => {
+    setCurrent(0)
+  }, [count, firstSlide?.url])
+
+  // Respect prefers-reduced-motion
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReducedMotion(query.matches)
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
+
+  // Don't burn CPU/battery cycling slides in a background tab
+  useEffect(() => {
+    const onVisibility = () => setTabVisible(!document.hidden)
+    onVisibility()
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+
   useEffect(() => {
     if (!containerRef.current) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting)
-        
+
         // Pause video when not in view (performance optimization)
-        if (type === 'video' && videoRef.current) {
+        if (firstSlide?.type === 'video' && videoRef.current) {
           if (entry.isIntersecting) {
             videoRef.current.play().catch(() => {
               // Autoplay might fail, that's ok
@@ -55,11 +94,36 @@ export default function ProfileBackgroundLayer({
     return () => {
       observer.disconnect()
     }
-  }, [type])
+  }, [firstSlide?.type])
+
+  // Advance the slideshow
+  useEffect(() => {
+    if (!isSlideshow || !isVisible || !tabVisible) return
+
+    const id = window.setInterval(
+      () => setCurrent(c => (c + 1) % count),
+      Math.max(3, intervalSeconds) * 1000
+    )
+    return () => window.clearInterval(id)
+  }, [isSlideshow, isVisible, tabVisible, count, intervalSeconds])
+
+  // Only the previous, current and next slides are mounted at once. The next one
+  // loads invisibly (opacity 0) so the crossfade never waits on the network, and
+  // memory stays bounded even with five large images.
+  const mountedIndexes = useMemo(() => {
+    if (!isSlideshow) return [0]
+    return Array.from(
+      new Set([(current - 1 + count) % count, current, (current + 1) % count])
+    ).sort((a, b) => a - b)
+  }, [isSlideshow, current, count])
 
   const handleReveal = () => {
     setRevealed(true)
   }
+
+  if (!firstSlide) return null
+
+  const mediaClass = `w-full h-full object-cover ${shouldBlur ? 'blur-[40px] scale-110' : ''}`
 
   return (
     <div
@@ -70,28 +134,44 @@ export default function ProfileBackgroundLayer({
       {/* Background media (only load when visible) */}
       {isVisible && (
         <>
-          {type === 'video' && (
+          {!isSlideshow && firstSlide.type === 'video' && (
             <video
               ref={videoRef}
-              src={backgroundUrl}
+              src={firstSlide.url}
               poster={posterUrl || undefined}
               autoPlay
               loop
               muted
               playsInline
-              className={`w-full h-full object-cover ${shouldBlur ? 'blur-[40px] scale-110' : ''}`}
+              className={mediaClass}
               style={{ transition: 'filter 0.3s ease-in-out' }}
             />
           )}
-          
-          {(type === 'gif' || type === 'image') && (
+
+          {!isSlideshow && firstSlide.type !== 'video' && (
             <img
-              src={backgroundUrl}
+              src={firstSlide.url}
               alt="Profile background"
-              className={`w-full h-full object-cover ${shouldBlur ? 'blur-[40px] scale-110' : ''}`}
+              className={mediaClass}
               style={{ transition: 'filter 0.3s ease-in-out' }}
             />
           )}
+
+          {isSlideshow &&
+            mountedIndexes.map(index => (
+              <img
+                key={slides[index].url}
+                src={slides[index].url}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+                className={`absolute inset-0 ${mediaClass}`}
+                style={{
+                  opacity: index === current ? 1 : 0,
+                  transition: `opacity ${FADE_MS}ms ease-in-out, filter 0.3s ease-in-out`,
+                }}
+              />
+            ))}
         </>
       )}
 
