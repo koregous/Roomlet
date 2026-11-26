@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Marquee animation for profile music pill */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Pause animation on hover */
+.animate-marquee {
+  animation: marquee 15s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Slightly smaller base font (90% of default 16px = 14.4px) for more compact UI */
+  font-size: 90%;
+}
+
+/* Lenis smooth scroll - only active on public profiles */
+html.lenis {
+  height: auto;
+}
+
+html.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+html.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+html.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+html.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Source Sans Pro',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ---------- Dashboard design system ----------
+   One source of truth for fields/buttons/cards so every editor looks and behaves the same.
+   Colours: ink (neutral surfaces) + white (text / primary action) + accent (focus & active). */
+@layer components {
+  .ui-card {
+    @apply rounded-xl border border-ink-line bg-ink-raised;
+  }
+  .ui-label {
+    @apply block text-xs font-medium text-gray-400 mb-1.5;
+  }
+  .ui-field {
+    @apply w-full rounded-lg border border-ink-line bg-ink-field px-3 py-2 text-sm text-white
+           placeholder:text-gray-500 transition-colors
+           hover:border-ink-line-strong
+           focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30;
+  }
+  .ui-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium
+           transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
+  }
+  /* Primary: the ONE filled button per area */
+  .ui-btn-primary {
+    @apply ui-btn bg-white text-black hover:bg-gray-200;
+  }
+  /* Secondary: visible but quiet */
+  .ui-btn-secondary {
+    @apply ui-btn border border-ink-line-strong bg-ink-field text-white hover:bg-[#222] hover:border-gray-500;
+  }
+  /* Ghost: low-emphasis actions (Remove, Cancel) */
+  .ui-btn-ghost {
+    @apply ui-btn text-gray-400 hover:text-white hover:bg-white/5;
+  }
+  .ui-btn-danger {
+    @apply ui-btn text-gray-400 hover:text-red-400 hover:bg-red-500/10;
+  }
+  .ui-btn-sm {
+    @apply px-2.5 py-1.5 text-xs;
+  }
+}
+
+@layer utilities {
+  /* Mobile-only styles (max-width: 768px) */
+  @media (max-width: 768px) {
+    .mobile-hero-text {
+      font-size: 2.25rem; /* 36px */
+      line-height: 1.2;
+    }
+    
+    .mobile-hero-subtext {
+      font-size: 1rem; /* 16px */
+    }
+    
+    .mobile-list-collage {
+      width: 80px !important;
+      height: 80px !important;
+    }
+    
+    .mobile-list-card {
+      gap: 0.75rem !important; /* 12px */
+      padding: 0.75rem !important; /* 12px */
+    }
+    
+    .mobile-list-title {
+      font-size: 1rem !important; /* 16px */
+    }
+    
+    .mobile-list-meta {
+      font-size: 0.75rem !important; /* 12px */
+    }
+    
+    .mobile-gallery-grid {
+      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      gap: 1rem !important; /* 16px */
+    }
+    
+    .mobile-carousel-card {
+      width: 280px !important;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(to right, #1f2937 0%, #374151 50%, #1f2937 100%);
+    background-size: 1000px 100%;
+  }
+
+  .group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+  }
+
+  input:focus,
+  textarea:focus,
+  button:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  /* Custom scrollbar for horizontal carousels */
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #111827; /* gray-900 */
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #374151; /* gray-800 */
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #4b5563; /* gray-700 */
+  }
+
+  /* For Firefox */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #111827;
+  }
+}

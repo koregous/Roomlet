@@ -1,0 +1,18 @@
+{
+  "name": "Roomlet - Your Personal Space",
+  "short_name": "Roomlet",
+  "description": "Your personal space, in every medium.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/preview-card.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
