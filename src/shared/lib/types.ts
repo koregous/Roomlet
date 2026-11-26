@@ -21,6 +21,7 @@ export interface Profile {
   created_at: string
   updated_at: string
   is_premium?: boolean
+  is_admin?: boolean
   subscription_status?: 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete'
   subscription_start_date?: string | null
   is_nsfw?: boolean // Profile-wide NSFW flag
